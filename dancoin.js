@@ -28,9 +28,25 @@ class CryptoBlockchain{
         newBlock.hash = newBlock.computeHash();
         this.blockchain.push(newBlock);
     }
-}
+    checkChainValiditiy() {
+        for (let i = 1; i < this.blockchain.length; i++) {
+            const currentBlock = this.blockchain[i];
+            const precedingBlock = this.blockchain[i-1];
+
+            if (currentBlock.hash !== currentBlock.computeHash()) {
+                return false;
+            }
+            if (currentBlock.precedingHash !== precedingBlock.hash) {
+                return false;
+            }
+
+            return true;
+        }
+    }
+ }
 
 const danCoin = new CryptoBlockchain();
 danCoin.addNewBlock(new CryptoBlock(1, Date.now, {sender: "Dan", recipient: "Lulu", quantity: 50}));
 danCoin.addNewBlock(new CryptoBlock(2, Date.now, {sender: "Lulu", recipient: "Dan", quantity: 50}));
 console.log(JSON.stringify(danCoin, null, 4));
+console.log(danCoin.checkChainValiditiy())
