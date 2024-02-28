@@ -5,17 +5,24 @@ class CryptoBlock{
         this.timestamp = timestamp;
         this.data = data;
         this.precedingHash = precedingHash;
+        this.nonce = 0;
         this.hash = this.computeHash();
     }
-
+    proofOfWork(difficulty) {
+        while(this.hash.substring(0, difficulty) !== Array(difficulty + 1).join("0")) {
+            this.nonce++;
+            this.hash = this.computeHash();
+        }
+    }
     computeHash() {
-        return SHA256(`${this.index}${this.precedingHash}${this.timestamp}${JSON.stringify(this.data)}`).toString();
+        return SHA256(`${this.index}${this.precedingHash}${this.timestamp}${JSON.stringify(this.data)}${this.nonce}`).toString();
     }
 }
 
 class CryptoBlockchain{
     constructor() {
         this.blockchain = [this.startGenesisBlock()];
+        this.difficulty = 4;
     }
     startGenesisBlock() {
         return new CryptoBlock(0, Date.now, "First Block of Chain", "0");
@@ -25,7 +32,8 @@ class CryptoBlockchain{
     }
     addNewBlock(newBlock) {
         newBlock.precedingHash=this.obtainLatestBlock().hash;
-        newBlock.hash = newBlock.computeHash();
+        // newBlock.hash = newBlock.computeHash();
+        newBlock.proofOfWork(this.difficulty);
         this.blockchain.push(newBlock);
     }
     checkChainValiditiy() {
